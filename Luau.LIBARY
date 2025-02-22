@@ -1,0 +1,609 @@
+--// Enchanted UI Library
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+
+local EnchantedUI = {}
+
+function EnchantedUI:CreateWindow(title)
+    local ScreenGui = Instance.new("ScreenGui")
+    local MainFrame = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local Title = Instance.new("TextLabel")
+    local TabsFrame = Instance.new("Frame")
+    local UIListLayout = Instance.new("UIListLayout")
+    local ContentFrame = Instance.new("Frame")
+
+    -- Setup UI
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    MainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+    MainFrame.Size = UDim2.new(0, 450, 0, 350)
+    UICorner.Parent = MainFrame
+    UICorner.CornerRadius = UDim.new(0, 15)
+    MainFrame.Draggable = true
+    MainFrame.Active = true
+
+    Title.Parent = MainFrame
+    Title.Text = title
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 22
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.BackgroundTransparency = 1
+
+    TabsFrame.Parent = MainFrame
+    TabsFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    TabsFrame.Position = UDim2.new(0, 0, 0.12, 0)
+    TabsFrame.Size = UDim2.new(0, 120, 1, -40)
+    UIListLayout.Parent = TabsFrame
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 5)
+
+    ContentFrame.Parent = MainFrame
+    ContentFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    ContentFrame.Position = UDim2.new(0, 120, 0.12, 0)
+    ContentFrame.Size = UDim2.new(1, -120, 1, -40)
+    
+    local Window = {MainFrame = MainFrame, ContentFrame = ContentFrame, TabsFrame = TabsFrame}
+    setmetatable(Window, self)
+    self.__index = self
+    return Window
+end
+
+function EnchantedUI:AddTab(window, name)
+    local Tab = Instance.new("TextButton")
+    Tab.Parent = window.TabsFrame
+    Tab.Text = name
+    Tab.Size = UDim2.new(1, 0, 0, 35)
+    Tab.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    Tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Tab.Font = Enum.Font.GothamBold
+    Tab.TextSize = 14
+    
+    local TabCorner = Instance.new("UICorner")
+    TabCorner.Parent = Tab
+    TabCorner.CornerRadius = UDim.new(0, 8)
+    
+    local Page = Instance.new("Frame")
+    Page.Parent = window.ContentFrame
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    Page.Visible = false
+    
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = Page
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 5)
+    
+    Tab.MouseButton1Click:Connect(function()
+        for _, child in pairs(window.ContentFrame:GetChildren()) do
+            if child:IsA("Frame") then
+                child.Visible = false
+            end
+        end
+        Page.Visible = true
+    end)
+    
+    return Page
+end
+
+function EnchantedUI:AddElement(tab, element)
+    element.Parent = tab
+end
+
+function EnchantedUI:AddButton(tab, text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Text = text
+    Button.Size = UDim2.new(1, 0, 0, 35)
+    Button.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.Parent = Button
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    
+    Button.MouseButton1Click:Connect(function()
+        callback()
+    end)
+    
+    EnchantedUI:AddElement(tab, Button)
+    return Button
+end
+
+function EnchantedUI:AddSection(tab, name)
+    local Section = Instance.new("TextLabel")
+    Section.Text = name
+    Section.Size = UDim2.new(1, 0, 0, 30)
+    Section.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+    Section.TextColor3 = Color3.fromRGB(200, 200, 255)
+    Section.Font = Enum.Font.GothamBold
+    Section.TextSize = 16
+    
+    EnchantedUI:AddElement(tab, Section)
+    return Section
+end
+
+function EnchantedUI:AddTextbox(tab, placeholder, callback)
+    local TextBox = Instance.new("TextBox")
+    TextBox.PlaceholderText = placeholder
+    TextBox.Size = UDim2.new(1, 0, 0, 30)
+    TextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextBox.Font = Enum.Font.Gotham
+    TextBox.TextSize = 14
+    
+    TextBox.FocusLost:Connect(function()
+        callback(TextBox.Text)
+    end)
+    
+    EnchantedUI:AddElement(tab, TextBox)
+    return TextBox
+end
+
+function EnchantedUI:AddToggle(tab, text, callback)
+    local Toggle = Instance.new("TextButton")
+    local toggled = false
+    Toggle.Text = text .. " [OFF]"
+    Toggle.Size = UDim2.new(1, 0, 0, 30)
+    Toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Toggle.Font = Enum.Font.GothamBold
+    Toggle.TextSize = 14
+    
+    Toggle.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        Toggle.Text = text .. (toggled and " [ON]" or " [OFF]")
+        callback(toggled)
+    end)
+    
+    EnchantedUI:AddElement(tab, Toggle)
+    return Toggle
+end
+
+function EnchantedUI:AddDropdown(tab, text, options, callback)
+    local DropdownFrame = Instance.new("Frame")
+    DropdownFrame.Size = UDim2.new(1, 0, 0, 35)
+    DropdownFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = DropdownFrame
+
+    local Button = Instance.new("TextButton")
+    Button.Text = text .. " ▼"
+    Button.Size = UDim2.new(1, 0, 1, 0)
+    Button.BackgroundTransparency = 1
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.Parent = DropdownFrame
+
+    local OptionsFrame = Instance.new("Frame")
+    OptionsFrame.Position = UDim2.new(0, 0, 1, 0)
+    OptionsFrame.Size = UDim2.new(1, 0, 0, #options * 30)
+    OptionsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    OptionsFrame.Visible = false
+    OptionsFrame.Parent = DropdownFrame
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = OptionsFrame
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Padding = UDim.new(0, 5)
+
+    for _, option in ipairs(options) do
+        local OptionButton = Instance.new("TextButton")
+        OptionButton.Text = option
+        OptionButton.Size = UDim2.new(1, 0, 0, 30)
+        OptionButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+        OptionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        OptionButton.Font = Enum.Font.Gotham
+        OptionButton.TextSize = 14
+        OptionButton.Parent = OptionsFrame
+
+        OptionButton.MouseButton1Click:Connect(function()
+            Button.Text = text .. ": " .. option
+            OptionsFrame.Visible = false
+            callback(option)
+        end)
+    end
+
+    Button.MouseButton1Click:Connect(function()
+        OptionsFrame.Visible = not OptionsFrame.Visible
+    end)
+
+    EnchantedUI:AddElement(tab, DropdownFrame)
+    return DropdownFrame
+end
+
+function EnchantedUI:AddDropdown(tab, text, options, callback)
+    local DropdownFrame = Instance.new("Frame")
+    DropdownFrame.Size = UDim2.new(1, 0, 0, 35)
+    DropdownFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = DropdownFrame
+
+    local Button = Instance.new("TextButton")
+    Button.Text = text .. " ▼"
+    Button.Size = UDim2.new(1, 0, 1, 0)
+    Button.BackgroundTransparency = 1
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.Parent = DropdownFrame
+
+    local OptionsFrame = Instance.new("Frame")
+    OptionsFrame.Size = UDim2.new(1, 0, 0, #options * 30)
+    OptionsFrame.Position = UDim2.new(0, 0, 1, 0)
+    OptionsFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    OptionsFrame.Visible = false
+    OptionsFrame.Parent = DropdownFrame
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Parent = OptionsFrame
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    for _, option in pairs(options) do
+        local OptionButton = Instance.new("TextButton")
+        OptionButton.Size = UDim2.new(1, 0, 0, 30)
+        OptionButton.Text = option
+        OptionButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+        OptionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        OptionButton.Font = Enum.Font.GothamBold
+        OptionButton.TextSize = 14
+        OptionButton.Parent = OptionsFrame
+
+        OptionButton.MouseButton1Click:Connect(function()
+            Button.Text = text .. ": " .. option
+            OptionsFrame.Visible = false
+            DropdownFrame.Size = UDim2.new(1, 0, 0, 35)
+            callback(option)
+        end)
+    end
+
+    Button.MouseButton1Click:Connect(function()
+        local isVisible = OptionsFrame.Visible
+        OptionsFrame.Visible = not isVisible
+
+        if isVisible then
+            DropdownFrame.Size = UDim2.new(1, 0, 0, 35) -- Shrink when closed
+        else
+            DropdownFrame.Size = UDim2.new(1, 0, 0, 35 + (#options * 30)) -- Expand when open
+        end
+    end)
+
+    EnchantedUI:AddElement(tab, DropdownFrame)
+    return DropdownFrame
+end
+
+local themes = {
+    Dark = {
+        Background = Color3.fromRGB(30, 30, 40),
+        Tab = Color3.fromRGB(40, 40, 50),
+        Content = Color3.fromRGB(25, 25, 30),
+        Button = Color3.fromRGB(60, 60, 70),
+        TextColor = Color3.fromRGB(255, 255, 255),
+    },
+    Ocean = {
+        Background = Color3.fromRGB(20, 40, 60),
+        Tab = Color3.fromRGB(30, 50, 80),
+        Content = Color3.fromRGB(15, 30, 50),
+        Button = Color3.fromRGB(50, 80, 120),
+        TextColor = Color3.fromRGB(200, 220, 255),
+    },
+    Forest = {
+        Background = Color3.fromRGB(25, 50, 30),
+        Tab = Color3.fromRGB(35, 70, 40),
+        Content = Color3.fromRGB(20, 45, 25),
+        Button = Color3.fromRGB(50, 100, 60),
+        TextColor = Color3.fromRGB(220, 255, 220),
+    }
+}
+
+function EnchantedUI:SetTheme(themeName)
+    local theme = themes[themeName]
+    if not theme then return end
+
+    for _, element in pairs(game.Players.LocalPlayer.PlayerGui:GetDescendants()) do
+        if element:IsA("Frame") or element:IsA("TextButton") or element:IsA("TextLabel") or element:IsA("TextBox") then
+            if string.find(element.Name, "Tab") then
+                element.BackgroundColor3 = theme.Tab
+            elseif string.find(element.Name, "Content") then
+                element.BackgroundColor3 = theme.Content
+            elseif string.find(element.Name, "Button") then
+                element.BackgroundColor3 = theme.Button
+            else
+                element.BackgroundColor3 = theme.Background
+            end
+            if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
+                element.TextColor3 = theme.TextColor
+            end
+        end
+    end
+end
+
+function EnchantedUI:AddColorPicker(tab, text, defaultColor, callback)
+    local ColorPickerFrame = Instance.new("Frame")
+    ColorPickerFrame.Size = UDim2.new(1, 0, 0, 35)
+    ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = ColorPickerFrame
+
+    local Button = Instance.new("TextButton")
+    Button.Text = text
+    Button.Size = UDim2.new(1, -40, 1, 0)
+    Button.Position = UDim2.new(0, 5, 0, 0)
+    Button.BackgroundTransparency = 1
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 14
+    Button.Parent = ColorPickerFrame
+
+    local ColorDisplay = Instance.new("Frame")
+    ColorDisplay.Size = UDim2.new(0, 30, 0, 30)
+    ColorDisplay.Position = UDim2.new(1, -35, 0.5, -15)
+    ColorDisplay.BackgroundColor3 = defaultColor or Color3.fromRGB(255, 0, 0)
+    ColorDisplay.Parent = ColorPickerFrame
+
+    local ColorUICorner = Instance.new("UICorner")
+    ColorUICorner.CornerRadius = UDim.new(0, 8)
+    ColorUICorner.Parent = ColorDisplay
+
+    -- Popup UI for Color Selection
+    local PickerPopup = Instance.new("Frame")
+    PickerPopup.Size = UDim2.new(0, 150, 0, 120)
+    PickerPopup.Position = UDim2.new(0.5, -75, 0, 40)
+    PickerPopup.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    PickerPopup.Visible = false
+    PickerPopup.Parent = ColorPickerFrame
+
+    local PickerUICorner = Instance.new("UICorner")
+    PickerUICorner.CornerRadius = UDim.new(0, 8)
+    PickerUICorner.Parent = PickerPopup
+
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Text = "Close"
+    CloseButton.Size = UDim2.new(1, 0, 0, 20)
+    CloseButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.TextSize = 14
+    CloseButton.Parent = PickerPopup
+
+    -- Simulated color selection
+    local Colors = {Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0)}
+    for i, col in pairs(Colors) do
+        local ColorOption = Instance.new("TextButton")
+        ColorOption.Size = UDim2.new(1, 0, 0, 25)
+        ColorOption.Position = UDim2.new(0, 0, 0, (i - 1) * 25 + 20)
+        ColorOption.BackgroundColor3 = col
+        ColorOption.Text = ""
+        ColorOption.Parent = PickerPopup
+
+        ColorOption.MouseButton1Click:Connect(function()
+            ColorDisplay.BackgroundColor3 = col
+            PickerPopup.Visible = false
+            callback(col)
+        end)
+    end
+
+    Button.MouseButton1Click:Connect(function()
+        PickerPopup.Visible = not PickerPopup.Visible
+    end)
+
+    CloseButton.MouseButton1Click:Connect(function()
+        PickerPopup.Visible = false
+    end)
+
+    EnchantedUI:AddElement(tab, ColorPickerFrame)
+    return ColorPickerFrame
+end
+
+function EnchantedUI:AddParagraph(tab, title, text)
+    local ParagraphFrame = Instance.new("Frame")
+    ParagraphFrame.Size = UDim2.new(1, 0, 0, 0)
+    ParagraphFrame.BackgroundTransparency = 1
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Parent = ParagraphFrame
+    TitleLabel.Text = title
+    TitleLabel.Size = UDim2.new(1, -10, 0, 20)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 16
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ParagraphLabel = Instance.new("TextLabel")
+    ParagraphLabel.Parent = ParagraphFrame
+    ParagraphLabel.Text = text
+    ParagraphLabel.Size = UDim2.new(1, -10, 0, 0)
+    ParagraphLabel.Position = UDim2.new(0, 0, 0, 25)
+    ParagraphLabel.BackgroundTransparency = 1
+    ParagraphLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    ParagraphLabel.Font = Enum.Font.Gotham
+    ParagraphLabel.TextSize = 14
+    ParagraphLabel.TextWrapped = true
+    ParagraphLabel.TextXAlignment = Enum.TextXAlignment.Left
+    ParagraphLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+    -- Automatically adjust the paragraph height
+    local function updateSize()
+        ParagraphLabel.Size = UDim2.new(1, -10, 0, ParagraphLabel.TextBounds.Y + 5)
+        ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphLabel.TextBounds.Y + 30)
+    end
+
+    ParagraphLabel:GetPropertyChangedSignal("TextBounds"):Connect(updateSize)
+    updateSize()
+
+    EnchantedUI:AddElement(tab, ParagraphFrame)
+    return ParagraphFrame
+end
+function EnchantedUI:AddKeybind(tab, text, defaultKey, callback)
+    local KeybindFrame = Instance.new("Frame")
+    KeybindFrame.Size = UDim2.new(1, 0, 0, 30)
+    KeybindFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = KeybindFrame
+    
+    local KeybindLabel = Instance.new("TextLabel")
+    KeybindLabel.Parent = KeybindFrame
+    KeybindLabel.Text = text
+    KeybindLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    KeybindLabel.BackgroundTransparency = 1
+    KeybindLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeybindLabel.Font = Enum.Font.GothamBold
+    KeybindLabel.TextSize = 14
+    KeybindLabel.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local KeyButton = Instance.new("TextButton")
+    KeyButton.Parent = KeybindFrame
+    KeyButton.Size = UDim2.new(0.3, -5, 1, -5)
+    KeyButton.Position = UDim2.new(0.7, 5, 0, 2)
+    KeyButton.Text = defaultKey.Name
+    KeyButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+    KeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyButton.Font = Enum.Font.GothamBold
+    KeyButton.TextSize = 14
+
+    local listening = false
+    KeyButton.MouseButton1Click:Connect(function()
+        KeyButton.Text = "..."
+        listening = true
+    end)
+
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if listening and input.UserInputType == Enum.UserInputType.Keyboard then
+            KeyButton.Text = input.KeyCode.Name
+            listening = false
+            callback(input.KeyCode)
+        end
+    end)
+
+    EnchantedUI:AddElement(tab, KeybindFrame)
+    return KeybindFrame
+end
+
+function EnchantedUI:AddLabel(tab, text)
+    local Label = Instance.new("TextLabel")
+    Label.Text = text
+    Label.Size = UDim2.new(1, -10, 0, 25)
+    Label.BackgroundTransparency = 1
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    EnchantedUI:AddElement(tab, Label)
+    return Label
+end
+
+function EnchantedUI:CreateKeySystem(settings, onSuccess)
+    if not settings.KeySystemEnabled then
+        onSuccess()
+        return
+    end
+
+    local KeyScreen = Instance.new("ScreenGui")
+    local KeyFrame = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local Title = Instance.new("TextLabel")
+    local TextBox = Instance.new("TextBox")
+    local SubmitButton = Instance.new("TextButton")
+    
+    -- Setup UI
+    KeyScreen.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    KeyFrame.Parent = KeyScreen
+    KeyFrame.Size = UDim2.new(0, 300, 0, 150)
+    KeyFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    KeyFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    KeyFrame.Active = true
+    KeyFrame.Draggable = true
+
+    UICorner.Parent = KeyFrame
+    UICorner.CornerRadius = UDim.new(0, 15)
+
+    Title.Parent = KeyFrame
+    Title.Text = "Enter Access Key"
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 18
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.BackgroundTransparency = 1
+
+    TextBox.Parent = KeyFrame
+    TextBox.PlaceholderText = "Enter Key..."
+    TextBox.Size = UDim2.new(1, -20, 0, 30)
+    TextBox.Position = UDim2.new(0, 10, 0, 50)
+    TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextBox.Font = Enum.Font.Gotham
+    TextBox.TextSize = 14
+    
+    SubmitButton.Parent = KeyFrame
+    SubmitButton.Text = "Submit"
+    SubmitButton.Size = UDim2.new(1, -20, 0, 30)
+    SubmitButton.Position = UDim2.new(0, 10, 0, 90)
+    SubmitButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitButton.Font = Enum.Font.GothamBold
+    SubmitButton.TextSize = 14
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.Parent = SubmitButton
+    ButtonCorner.CornerRadius = UDim.new(0, 8)
+
+    SubmitButton.MouseButton1Click:Connect(function()
+        if TextBox.Text == settings.CustomKey then
+            print("Access Granted!")
+            KeyScreen:Destroy()
+            onSuccess()
+        else
+            print("Invalid Key!")
+            TextBox.Text = ""
+        end
+    end)
+
+    return KeyScreen
+end
+
+function EnchantedUI:AddImageWithInfo(tab, imageId, size, title, info) 
+    local ImageLabel = Instance.new("ImageLabel")
+    ImageLabel.Size = size or UDim2.new(0, 100, 0, 100) 
+    ImageLabel.BackgroundTransparency = 1 
+    ImageLabel.Image = "rbxassetid://" .. imageId 
+
+    local TitleLabel = Instance.new("TextLabel") 
+    TitleLabel.Text = title 
+    TitleLabel.Font = Enum.Font.GothamBold 
+    TitleLabel.TextSize = 20 
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255) 
+    TitleLabel.Size = UDim2.new(1, 0, 0, 40) 
+    TitleLabel.BackgroundTransparency = 1 
+
+    local InfoLabel = Instance.new("TextLabel") 
+    InfoLabel.Text = info 
+    InfoLabel.Font = Enum.Font.Gotham 
+    InfoLabel.TextSize = 14 
+    InfoLabel.TextWrapped = true 
+    InfoLabel.TextColor3 = Color3.fromRGB(200, 200, 200) 
+    InfoLabel.Size = UDim2.new(1, 0, 0, 60) 
+    InfoLabel.BackgroundTransparency = 1 
+
+    EnchantedUI:AddElement(tab, TitleLabel) 
+    EnchantedUI:AddElement(tab, ImageLabel) 
+    EnchantedUI:AddElement(tab, InfoLabel) 
+
+    return ImageLabel, TitleLabel, InfoLabel 
+end
+
+return EnchantedUI
