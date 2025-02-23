@@ -683,4 +683,26 @@ function EnchantedUI:AddInviteButton(tab, title, info, inviteLink)
     return Card
 end
 
+function EnchantedUI:AddSearchBar(window, placeholder, callback)
+    local SearchBar = Instance.new("TextBox")
+    SearchBar.Parent = window.MainFrame
+    SearchBar.PlaceholderText = placeholder or "Search..."
+    SearchBar.Size = UDim2.new(1, -20, 0, 30)
+    SearchBar.Position = UDim2.new(0, 10, 0, 10)
+    SearchBar.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SearchBar.Font = Enum.Font.Gotham
+    SearchBar.TextSize = 14
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.Parent = SearchBar
+    UICorner.CornerRadius = UDim.new(0, 6)
+
+    SearchBar.Changed:Connect(function()
+        callback(SearchBar.Text)
+    end)
+
+    return SearchBar
+end
+
 return EnchantedUI
