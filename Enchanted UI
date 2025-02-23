@@ -625,41 +625,4 @@ function EnchantedUI:EnableScrolling(tab)
     return ScrollingFrame
 end
 
-function EnchantedUI:ShowNotification(message, duration)
-    local ScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-    local NotificationFrame = Instance.new("Frame")
-    local UICorner = Instance.new("UICorner")
-    local MessageLabel = Instance.new("TextLabel")
-
-    NotificationFrame.Parent = ScreenGui
-    NotificationFrame.Size = UDim2.new(0, 250, 0, 50)
-    NotificationFrame.Position = UDim2.new(0.5, -125, 0.1, 0) -- Centered
-    NotificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    NotificationFrame.BackgroundTransparency = 1 -- Start hidden
-
-    UICorner.Parent = NotificationFrame
-    UICorner.CornerRadius = UDim.new(0, 10)
-
-    MessageLabel.Parent = NotificationFrame
-    MessageLabel.Size = UDim2.new(1, 0, 1, 0)
-    MessageLabel.Text = message
-    MessageLabel.Font = Enum.Font.GothamBold
-    MessageLabel.TextSize = 16
-    MessageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    MessageLabel.BackgroundTransparency = 1
-
-    -- Fade In Animation
-    local fadeIn = TweenService:Create(NotificationFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.1})
-    fadeIn:Play()
-
-    -- Wait for the duration, then fade out
-    task.delay(duration or 3, function()
-        local fadeOut = TweenService:Create(NotificationFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1})
-        fadeOut:Play()
-        fadeOut.Completed:Wait()
-        NotificationFrame:Destroy()
-    end)
-end
-
 return EnchantedUI
