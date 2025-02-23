@@ -609,23 +609,19 @@ end
 function EnchantedUI:EnableScrolling(tab)
     local ScrollingFrame = Instance.new("ScrollingFrame")
     ScrollingFrame.Parent = tab
-    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
-    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ScrollingFrame.Size = UDim2.new(1, 0, 1, 0) -- Fill the tab
+    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Expands dynamically
     ScrollingFrame.ScrollBarThickness = 5
     ScrollingFrame.BackgroundTransparency = 1
-    ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ScrollingFrame.ClipsDescendants = true -- Prevents elements from overflowing
+    ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y -- Expands automatically
 
     local UIListLayout = Instance.new("UIListLayout")
     UIListLayout.Parent = ScrollingFrame
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    UIListLayout.Padding = UDim.new(0, 5)
+    UIListLayout.Padding = UDim.new(0, 5) -- Adjust spacing
 
-    for _, child in pairs(tab:GetChildren()) do
-        if child:IsA("GuiObject") then
-            child.Parent = ScrollingFrame
-        end
-    end
-
+    -- Return the scrolling frame so new elements can be added to it
     return ScrollingFrame
 end
 
