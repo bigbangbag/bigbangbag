@@ -625,26 +625,62 @@ function EnchantedUI:EnableScrolling(tab)
     return ScrollingFrame
 end
 
-function EnchantedUI:AddInviteButton(tab, text, inviteLink)
-    local InviteButton = Instance.new("TextButton")
-    InviteButton.Text = text
-    InviteButton.Size = UDim2.new(1, 0, 0, 35)
-    InviteButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    InviteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    InviteButton.Font = Enum.Font.GothamBold
-    InviteButton.TextSize = 14
+function EnchantedUI:AddInviteButton(tab, title, info, inviteLink)
+    local Card = Instance.new("Frame")
+    local UICorner = Instance.new("UICorner")
+    local TitleLabel = Instance.new("TextLabel")
+    local InfoLabel = Instance.new("TextLabel")
+    local CopyButton = Instance.new("TextButton")
     
+    -- Card setup
+    Card.Parent = tab
+    Card.Size = UDim2.new(1, 0, 0, 80)
+    Card.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    
+    UICorner.Parent = Card
+    UICorner.CornerRadius = UDim.new(0, 10)
+
+    -- Title setup
+    TitleLabel.Parent = Card
+    TitleLabel.Text = title
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 16
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+    TitleLabel.Size = UDim2.new(1, -20, 0, 20)
+    TitleLabel.BackgroundTransparency = 1
+
+    -- Info setup
+    InfoLabel.Parent = Card
+    InfoLabel.Text = info
+    InfoLabel.Font = Enum.Font.Gotham
+    InfoLabel.TextSize = 14
+    InfoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    InfoLabel.Position = UDim2.new(0, 10, 0, 30)
+    InfoLabel.Size = UDim2.new(1, -20, 0, 20)
+    InfoLabel.BackgroundTransparency = 1
+
+    -- Copy Button setup
+    CopyButton.Parent = Card
+    CopyButton.Text = "Copy Invite"
+    CopyButton.Font = Enum.Font.GothamBold
+    CopyButton.TextSize = 14
+    CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CopyButton.Size = UDim2.new(0, 120, 0, 30)
+    CopyButton.Position = UDim2.new(1, -130, 0, 40)
+    CopyButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.Parent = InviteButton
+    ButtonCorner.Parent = CopyButton
     ButtonCorner.CornerRadius = UDim.new(0, 8)
-    
-    InviteButton.MouseButton1Click:Connect(function()
-        setclipboard(inviteLink) -- Copies the invite link to clipboard
-        print("Invite link copied to clipboard: " .. inviteLink)
+
+    -- Copy Function
+    CopyButton.MouseButton1Click:Connect(function()
+        setclipboard(inviteLink)
+        print("Invite link copied:", inviteLink)
     end)
-    
-    EnchantedUI:AddElement(tab, InviteButton)
-    return InviteButton
+
+    return Card
 end
 
 return EnchantedUI
