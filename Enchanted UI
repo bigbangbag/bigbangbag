@@ -627,7 +627,7 @@ end
 
 function EnchantedUI:ShowNotification(message, duration)
     local ScreenGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    
+
     local NotificationFrame = Instance.new("Frame")
     local UICorner = Instance.new("UICorner")
     local MessageLabel = Instance.new("TextLabel")
