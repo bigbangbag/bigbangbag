@@ -1,0 +1,131 @@
+local OrionReplica = {}
+
+function OrionReplica:CreateWindow(title)
+    local ScreenGui = Instance.new("ScreenGui")
+    local Frame = Instance.new("Frame")
+    local TitleLabel = Instance.new("TextLabel")
+    local UICorner = Instance.new("UICorner")
+
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ResetOnSpawn = false
+
+    Frame.Parent = ScreenGui
+    Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 50) -- Dark Theme
+    Frame.Size = UDim2.new(0, 320, 0, 400)
+    Frame.Position = UDim2.new(0.5, -160, 0.5, -200)
+    Frame.BorderSizePixel = 0
+
+    -- Rounded Corners
+    UICorner.Parent = Frame
+    UICorner.CornerRadius = UDim.new(0, 10)
+
+    TitleLabel.Parent = Frame
+    TitleLabel.Text = title or "Orion UI"
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+    TitleLabel.TextSize = 22
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+
+    local UIListLayout = Instance.new("UIListLayout", Frame)
+    UIListLayout.Padding = UDim.new(0, 10)
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local Window = {Frame = Frame}
+    
+    function Window:AddButton(text, callback)
+        local Button = Instance.new("TextButton")
+        local UICorner = Instance.new("UICorner")
+
+        Button.Parent = Frame
+        Button.Size = UDim2.new(1, -20, 0, 45)
+        Button.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.TextSize = 18
+        Button.Font = Enum.Font.GothamMedium
+        Button.Text = text or "Button"
+
+        -- Rounded Corners
+        UICorner.Parent = Button
+        UICorner.CornerRadius = UDim.new(0, 8)
+
+        Button.MouseButton1Click:Connect(callback)
+    end
+
+    function Window:AddLabel(text)
+        local Label = Instance.new("TextLabel")
+
+        Label.Parent = Frame
+        Label.Size = UDim2.new(1, -20, 0, 35)
+        Label.BackgroundTransparency = 1
+        Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Label.TextSize = 16
+        Label.Font = Enum.Font.Gotham
+        Label.Text = text or "Label"
+    end
+
+    function Window:AddTextBox(placeholder, callback)
+        local TextBox = Instance.new("TextBox")
+        local UICorner = Instance.new("UICorner")
+
+        TextBox.Parent = Frame
+        TextBox.Size = UDim2.new(1, -20, 0, 40)
+        TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+        TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextBox.PlaceholderText = placeholder or "Enter text..."
+        TextBox.TextSize = 16
+        TextBox.Font = Enum.Font.Gotham
+
+        -- Rounded Corners
+        UICorner.Parent = TextBox
+        UICorner.CornerRadius = UDim.new(0, 8)
+
+        TextBox.FocusLost:Connect(function()
+            callback(TextBox.Text)
+        end)
+    end
+
+    function Window:AddToggle(text, callback)
+        local ToggleFrame = Instance.new("Frame")
+        local ToggleLabel = Instance.new("TextLabel")
+        local ToggleButton = Instance.new("TextButton")
+        local UICorner = Instance.new("UICorner")
+        local Toggled = false
+
+        ToggleFrame.Parent = Frame
+        ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
+        ToggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+
+        ToggleLabel.Parent = ToggleFrame
+        ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+        ToggleLabel.Text = text or "Toggle"
+        ToggleLabel.TextSize = 16
+        ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ToggleLabel.BackgroundTransparency = 1
+        ToggleLabel.Font = Enum.Font.Gotham
+
+        ToggleButton.Parent = ToggleFrame
+        ToggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+        ToggleButton.Position = UDim2.new(0.8, 0, 0, 0)
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        ToggleButton.Text = "OFF"
+        ToggleButton.TextSize = 14
+        ToggleButton.Font = Enum.Font.Gotham
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+        -- Rounded Corners
+        UICorner.Parent = ToggleButton
+        UICorner.CornerRadius = UDim.new(0, 6)
+
+        ToggleButton.MouseButton1Click:Connect(function()
+            Toggled = not Toggled
+            ToggleButton.BackgroundColor3 = Toggled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+            ToggleButton.Text = Toggled and "ON" or "OFF"
+            callback(Toggled)
+        end)
+    end
+
+    return Window
+end
+
+return OrionReplica
